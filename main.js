@@ -62,7 +62,7 @@ async function updateStatus() {
       state: `${data.artist} - ${data.album}`,
       buttons: [
         {
-          label: `${formatNumber(data.scrobbles)} total shits.`,
+	  label: `${formatNumber(data.scrobbles)} ${config.label}`,
 	  url: JSON.parse(config.clickable) ? `https://www.last.fm/user/${config.username}/` : "javascript:void(0);"
         },
       ],
