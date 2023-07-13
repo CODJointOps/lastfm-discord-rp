@@ -31,7 +31,7 @@ In this file put the following
 ```
 [Desktop Entry]
 Type=Application
-Exec=bash -c "cd ~/Desktop/lastfm && ./start"
+Exec=bash -c "cd ~/Desktop/lastfm/scripts && ./start.sh"
 Hidden=false
 NoDisplay=false
 X-GNOME-Autostart-enabled=true
@@ -40,6 +40,7 @@ Name=LastFM
 Comment[en_US]=Start LastFM
 Comment=Start LastFM
 ```
+Make sure to replace the line ```Exec=bash -c "cd ~/Desktop/lastfm/scripts && ./start.sh"``` with your correct information.
 
 ## License
 
