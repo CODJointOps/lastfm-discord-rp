@@ -13,6 +13,7 @@ Open the scripts folder and run either start.bat or start.sh depending on OS.
 
 ## FAQ
 
+
 ### How do I run this with pc startup?
 
 #### FOR WINDOWS
