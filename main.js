@@ -63,7 +63,7 @@ async function updateStatus() {
       buttons: [
         {
           label: `${formatNumber(data.scrobbles)} total shits.`,
-          url: "javascript:void(0);",
+	  url: JSON.parse(config.clickable) ? `https://www.last.fm/user/${config.username}/` : "javascript:void(0);"
         },
       ],
     });

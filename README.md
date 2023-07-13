@@ -9,7 +9,8 @@ type ```npm i``` to install necessary necessary.
 
 ## Running
 
-Open the scripts folder and run either start.bat or start.sh depending on OS.
+Renamed "config.example.json" to "config.json and fill it out with the correct information.
+After that, open the scripts folder and run either start.bat or start.sh depending on OS.
 
 ## FAQ
 
