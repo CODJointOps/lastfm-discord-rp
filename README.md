@@ -15,12 +15,16 @@ Open the scripts folder and run either start.bat or start.sh depending on OS.
 
 ### How do I run this with pc startup?
 
-On windows to do this, simply go into the scripts folder and
+#### FOR WINDOWS
+
+Simply go into the scripts folder and
 right click "start.bat" and select "Create Shortcut".
 Then press "Windows key + R", in the run box type "shell:startup".
 After that simply copy the shortcut of the bat file to that folder.
 
-For linux, go to ~/.config/autostart and create a new file called "lastfm.desktop"
+#### FOR LINUX
+
+Go to ~/.config/autostart and create a new file called "lastfm.desktop"
 In this file put the following
 
 ```
