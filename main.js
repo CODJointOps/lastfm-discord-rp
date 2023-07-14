@@ -62,8 +62,8 @@ async function updateStatus() {
       state: `${data.artist} - ${data.album}`,
       buttons: [
         {
-	        label: `${formatNumber(data.scrobbles)} ${config.label}`,
-	        url: JSON.parse(config.clickable) ? `https://www.last.fm/user/${config.username}/` : "javascript:void(0);"
+          label: `${formatNumber(data.scrobbles)} ${config.label}`,
+          url: JSON.parse(config.clickable) ? `https://www.last.fm/user/${config.username}/` : "javascript:void(0);"
         },
       ],
     });
@@ -118,9 +118,11 @@ async function fetchCurrentScrobble(user) {
 
     const rData = await fetch(options);
 
-    if (!rData.track) {
-      console.error("No track data in track.getInfo for track: " + lastTrackName + " by artist: " + lastArtist);
-      return null;
+    let playcount = "0";
+    if (rData.track && rData.track.userplaycount) {
+      playcount = rData.track.userplaycount;
+    } else {
+      console.warn("No track data in track.getInfo for track: " + lastTrackName + " by artist: " + lastArtist);
     }
 
     let images = lastTrack.recenttracks.track[0].image;
@@ -130,7 +132,7 @@ async function fetchCurrentScrobble(user) {
       artist: lastArtist,
       album: lastTrack.recenttracks.track[0].album["#text"] || "Unknown Album",
       trackName: lastTrackName,
-      playcount: rData.track.userplaycount ? rData.track.userplaycount : "0",
+      playcount: playcount,
       scrobbles: lastTrack.recenttracks["@attr"].total,
       whenScrobbled: lastTrack.recenttracks.track[0]["@attr"],
       scrobbleStatus: !lastTrack.recenttracks.track[0]["@attr"] ? `Last scrobbled ${prettyMilliseconds(Date.now() - lastTrack.recenttracks.track[0].date.uts * 1000)} ago.` : "Now scrobbling.",
