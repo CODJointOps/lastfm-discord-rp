@@ -78,6 +78,8 @@ async function updateStatus() {
 }
 
 async function fetchCurrentScrobble(user) {
+  let lastTrackName;
+  let lastArtist;
   try {
     const optionsGetTrack = {
       uri: "http://ws.audioscrobbler.com/2.0/",
@@ -93,8 +95,13 @@ async function fetchCurrentScrobble(user) {
 
     const lastTrack = await fetch(optionsGetTrack);
 
-    let lastArtist = lastTrack.recenttracks.track[0].artist["#text"];
-    let lastTrackName = lastTrack.recenttracks.track[0].name;
+    if (!lastTrack.recenttracks.track[0]) {
+      console.error("No track data in recenttracks");
+      return null;
+    }
+
+    lastArtist = lastTrack.recenttracks.track[0].artist["#text"];
+    lastTrackName = lastTrack.recenttracks.track[0].name;
 
     const options = {
       uri: "http://ws.audioscrobbler.com/2.0/",
@@ -110,6 +117,11 @@ async function fetchCurrentScrobble(user) {
     };
 
     const rData = await fetch(options);
+
+    if (!rData.track) {
+      console.error("No track data in track.getInfo for track: " + lastTrackName + " by artist: " + lastArtist);
+      return null;
+    }
 
     let images = lastTrack.recenttracks.track[0].image;
     let coverURL = images && images[images.length - 1]["#text"].trim() ? images[images.length - 1]["#text"].trim() : "default_cover";
@@ -127,8 +139,7 @@ async function fetchCurrentScrobble(user) {
 
     return data;
   } catch (error) {
-    console.error("Failed to fetch current scrobble:", error);
+    console.error("Failed to fetch current scrobble for track: " + lastTrackName + " by artist: " + lastArtist, error);
     return null;
   }
 }
-
