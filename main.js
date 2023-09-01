@@ -7,7 +7,6 @@ const config = JSON.parse(fs.readFileSync("config.json"));
 
 const updateInterval = 5000;
 const retryInterval = 30000;
-const maxUptime = 3 * 60 * 60 * 1000; // Maximum uptime before restart (3 hours)
 
 let rp;
 let startTime = Date.now();
@@ -72,11 +71,6 @@ async function updateStatus() {
 
     console.log("Discord status updated. Current track: " + data.trackName + ", Artist: " + data.artist);
 
-    // check if uptime exceeds maximum uptime
-    if ((Date.now() - startTime) > maxUptime) {
-      console.log("Max uptime reached, restarting process...");
-      process.exit(0);
-    }
 
     setTimeout(updateStatus, updateInterval);
   } catch (error) {
