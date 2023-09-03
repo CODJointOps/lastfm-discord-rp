@@ -7,12 +7,12 @@ A nodejs script to show your current listening status on [lastfm](https://last.f
 Open the folder you wish to install to and start a terminal or cmd in that folder.
 Type ```git clone https://git.deadzone.lol/Wizzard/lastfm-discord-rp```.
 
-Open the console in which you downloaded the program in
+Open the console in which you downloaded the program in and
 type ```npm i``` to install necessary necessary.
 
 ## Running
 
-Renamed "config.example.json" to "config.json and fill it out with the correct information.
+Rename "config.example.json" to "config.json and fill it out with the correct information.
 After that, open the scripts folder and run either start.bat or start.sh depending on OS.
 
 ## FAQ
