@@ -55,7 +55,7 @@ async function updateStatus() {
     }
 
     await rp.setActivity({
-      largeImageKey: data.album !== data.trackName ? data.cover : "default_cover",
+      largeImageKey: data.cover !== "default_cover" ? data.cover : "default_cover",
       largeImageText: `${data.playcount} plays.`,
       smallImageKey: data.whenScrobbled ? "playing" : "stopped",
       smallImageText: data.scrobbleStatus,
@@ -132,10 +132,10 @@ async function fetchCurrentScrobble(user) {
     let coverURL = images && images[images.length - 1]["#text"].trim() ? images[images.length - 1]["#text"].trim() : "default_cover";
 
     let albumName = lastTrack.recenttracks.track[0].album["#text"];
-    if (!albumName) {
-      albumName = lastTrackName;
+    if (!albumName || albumName === "Unknown Album") {
+    	albumName = lastTrackName;
     }
-
+    
     const data = {
       artist: lastArtist,
       album: albumName,
