@@ -5,11 +5,14 @@ const fs = require("fs");
 
 const config = JSON.parse(fs.readFileSync("config.json"));
 
-const updateInterval = 5000;
+const updateInterval = 1000;
 const retryInterval = 30000;
+const restartInterval = 2 * 60 * 60 * 1000;
+const reconnectDelay = 10000;
 
 let rp;
 let startTime = Date.now();
+let reconnecting = false;
 
 function formatNumber(number) {
   var x = number.split(".");
@@ -23,6 +26,8 @@ function formatNumber(number) {
 }
 
 function createClient() {
+  if (reconnecting) return;
+
   rp = new rpc.Client({ transport: "ipc" });
 
   rp.on("ready", () => {
@@ -33,24 +38,31 @@ function createClient() {
   rp.on("disconnected", () => {
     console.log("Disconnected from Discord!");
     rp = null;
-    setTimeout(createClient, retryInterval);
+    reconnect();
   });
 
   rp.login({ clientId: config.clientId }).catch((error) => {
     console.error("Error connecting to Discord:", error);
     rp = null;
-    setTimeout(createClient, retryInterval);
+    reconnect();
   });
 }
 
-createClient();
+function reconnect() {
+  if (reconnecting) return;
+  reconnecting = true;
+  setTimeout(() => {
+    reconnecting = false;
+    createClient();
+  }, reconnectDelay);
+}
 
 async function updateStatus() {
   try {
     const data = await fetchCurrentScrobble(config.username);
     if (!data || !rp) {
       console.log("Reconnecting to Discord...");
-      setTimeout(updateStatus, retryInterval);
+      reconnect();
       return;
     }
 
@@ -71,12 +83,11 @@ async function updateStatus() {
 
     console.log("Discord status updated. Current track: " + data.trackName + ", Artist: " + data.artist);
 
-
     setTimeout(updateStatus, updateInterval);
   } catch (error) {
     console.error("Failed to update status:", error);
     rp = null;
-    setTimeout(updateStatus, retryInterval);
+    reconnect();
   }
 }
 
@@ -133,7 +144,7 @@ async function fetchCurrentScrobble(user) {
 
     let albumName = lastTrack.recenttracks.track[0].album["#text"];
     if (!albumName || albumName === "Unknown Album") {
-    	albumName = lastTrackName;
+      albumName = lastTrackName;
     }
     
     const data = {
@@ -154,3 +165,29 @@ async function fetchCurrentScrobble(user) {
   }
 }
 
+function cleanupAndRestart() {
+  if (rp) {
+    rp.clearActivity().then(() => {
+      rp.destroy();
+      rp = null;
+      console.log("RPC connection closed.");
+      setTimeout(main, reconnectDelay);
+    }).catch(error => {
+      console.error("Error clearing activity:", error);
+      rp = null;
+      setTimeout(main, reconnectDelay);
+    });
+  } else {
+    setTimeout(main, reconnectDelay);
+  }
+}
+
+function main() {
+  createClient();
+  setTimeout(() => {
+    console.log("Restarting internal logic...");
+    cleanupAndRestart();
+  }, restartInterval);
+}
+
+main();
