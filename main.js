@@ -5,7 +5,7 @@ const fs = require("fs");
 
 const config = JSON.parse(fs.readFileSync("config.json"));
 
-const updateInterval = 1000;
+const updateInterval = 5000;
 const retryInterval = 30000;
 const restartInterval = 2 * 60 * 60 * 1000;
 const reconnectDelay = 10000;
