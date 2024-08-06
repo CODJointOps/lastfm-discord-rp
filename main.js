@@ -9,6 +9,7 @@ const updateInterval = 1000;
 const retryInterval = 30000;
 const restartInterval = 2 * 60 * 60 * 1000;
 const reconnectDelay = 10000;
+const extendedReconnectDelay = 90000;
 
 let rp;
 let startTime = Date.now();
@@ -38,23 +39,48 @@ function createClient() {
   rp.on("disconnected", () => {
     console.log("Disconnected from Discord!");
     rp = null;
-    reconnect();
+    reconnect("connection closed");
+  });
+
+  rp.transport.on("error", (error) => {
+    console.error("Error with Discord connection:", error);
+    rp = null;
+    if (error.message.includes('RPC_CONNECTION_TIMEOUT')) {
+      reconnect("RPC_CONNECTION_TIMEOUT");
+    } else if (error.message.includes('connection closed')) {
+      reconnect("connection closed");
+    } else {
+      reconnect();
+    }
   });
 
   rp.login({ clientId: config.clientId }).catch((error) => {
     console.error("Error connecting to Discord:", error);
     rp = null;
-    reconnect();
+    if (error.message.includes('RPC_CONNECTION_TIMEOUT')) {
+      reconnect("RPC_CONNECTION_TIMEOUT");
+    } else if (error.message.includes('connection closed')) {
+      reconnect("connection closed");
+    } else {
+      reconnect();
+    }
   });
 }
 
-function reconnect() {
+function reconnect(errorType) {
   if (reconnecting) return;
   reconnecting = true;
+
+  let delay = reconnectDelay;
+  if (errorType === "RPC_CONNECTION_TIMEOUT" || errorType === "connection closed") {
+    delay = extendedReconnectDelay;
+    console.log(`Encountered ${errorType}, waiting for ${extendedReconnectDelay / 1000} seconds before reconnecting...`);
+  }
+
   setTimeout(() => {
     reconnecting = false;
     createClient();
-  }, reconnectDelay);
+  }, delay);
 }
 
 async function updateStatus() {
@@ -171,14 +197,14 @@ function cleanupAndRestart() {
       rp.destroy();
       rp = null;
       console.log("RPC connection closed.");
-      setTimeout(main, reconnectDelay);
+      setTimeout(main, extendedReconnectDelay);
     }).catch(error => {
       console.error("Error clearing activity:", error);
       rp = null;
-      setTimeout(main, reconnectDelay);
+      setTimeout(main, extendedReconnectDelay);
     });
   } else {
-    setTimeout(main, reconnectDelay);
+    setTimeout(main, extendedReconnectDelay);
   }
 }
 
