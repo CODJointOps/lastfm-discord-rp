@@ -14,6 +14,7 @@ const extendedReconnectDelay = 90000;
 let rp;
 let startTime = Date.now();
 let reconnecting = false;
+let lastTrack = null;
 
 function formatNumber(number) {
   var x = number.split(".");
@@ -91,6 +92,14 @@ async function updateStatus() {
       reconnect();
       return;
     }
+
+    if (lastTrack && lastTrack.trackName === data.trackName && lastTrack.artist === data.artist) {
+      console.log("Same track, skipping update.");
+      setTimeout(updateStatus, updateInterval);
+      return;
+    }
+
+    lastTrack = data;
 
     await rp.setActivity({
       largeImageKey: data.cover !== "default_cover" ? data.cover : "default_cover",
