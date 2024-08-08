@@ -9,13 +9,14 @@ const updateInterval = 5000;
 const retryInterval = 30000;
 const restartInterval = 2 * 60 * 60 * 1000;
 const reconnectDelay = 10000;
-const extendedReconnectDelay = 90000;
+const extendedReconnectDelay = 30000;
 
 let rp;
 let startTime = Date.now();
 let reconnecting = false;
 let lastTrack = null;
 let currentClient = null;
+let forceUpdate = false;
 
 function formatNumber(number) {
   var x = number.split(".");
@@ -36,7 +37,7 @@ function createClient() {
 
   rp.on("ready", () => {
     console.log("Connected to Discord!");
-    updateStatus();
+    updateStatus(true);
   });
 
   rp.on("disconnected", () => {
@@ -89,7 +90,7 @@ function reconnect(errorType) {
   }, delay);
 }
 
-async function updateStatus() {
+async function updateStatus(force = false) {
   try {
     const data = await fetchCurrentScrobble(config.username);
     if (!data || !rp) {
@@ -98,7 +99,7 @@ async function updateStatus() {
       return;
     }
 
-    if (lastTrack && lastTrack.trackName === data.trackName && lastTrack.artist === data.artist) {
+    if (!force && lastTrack && lastTrack.trackName === data.trackName && lastTrack.artist === data.artist) {
       console.log("Same track, skipping update.");
       setTimeout(updateStatus, updateInterval);
       return;
