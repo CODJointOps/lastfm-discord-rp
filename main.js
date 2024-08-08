@@ -15,6 +15,7 @@ let rp;
 let startTime = Date.now();
 let reconnecting = false;
 let lastTrack = null;
+let currentClient = null;
 
 function formatNumber(number) {
   var x = number.split(".");
@@ -28,9 +29,10 @@ function formatNumber(number) {
 }
 
 function createClient() {
-  if (reconnecting) return;
+  if (reconnecting || currentClient) return;
 
   rp = new rpc.Client({ transport: "ipc" });
+  currentClient = rp;
 
   rp.on("ready", () => {
     console.log("Connected to Discord!");
@@ -40,12 +42,14 @@ function createClient() {
   rp.on("disconnected", () => {
     console.log("Disconnected from Discord!");
     rp = null;
+    currentClient = null;
     reconnect("connection closed");
   });
 
   rp.transport.on("error", (error) => {
     console.error("Error with Discord connection:", error);
     rp = null;
+    currentClient = null;
     if (error.message.includes('RPC_CONNECTION_TIMEOUT')) {
       reconnect("RPC_CONNECTION_TIMEOUT");
     } else if (error.message.includes('connection closed')) {
@@ -58,6 +62,7 @@ function createClient() {
   rp.login({ clientId: config.clientId }).catch((error) => {
     console.error("Error connecting to Discord:", error);
     rp = null;
+    currentClient = null;
     if (error.message.includes('RPC_CONNECTION_TIMEOUT')) {
       reconnect("RPC_CONNECTION_TIMEOUT");
     } else if (error.message.includes('connection closed')) {
@@ -122,6 +127,7 @@ async function updateStatus() {
   } catch (error) {
     console.error("Failed to update status:", error);
     rp = null;
+    currentClient = null;
     reconnect();
   }
 }
@@ -205,11 +211,13 @@ function cleanupAndRestart() {
     rp.clearActivity().then(() => {
       rp.destroy();
       rp = null;
+      currentClient = null;
       console.log("RPC connection closed.");
       setTimeout(main, extendedReconnectDelay);
     }).catch(error => {
       console.error("Error clearing activity:", error);
       rp = null;
+      currentClient = null;
       setTimeout(main, extendedReconnectDelay);
     });
   } else {
