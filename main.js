@@ -1,5 +1,5 @@
 const rpc = require("discord-rpc");
-const request = require("request-promise");
+const request = require("axios");
 const prettyMilliseconds = require("pretty-ms");
 const fs = require("fs");
 
@@ -249,13 +249,11 @@ function getLastFmRetryDelay() {
 }
 
 async function requestLastFm(params) {
-  return request({
-    method: "GET",
-    uri: lastFmEndpoint,
-    json: true,
+  const response = await request.get(lastFmEndpoint, {
     timeout: lastFmTimeout,
-    qs: params,
+    params,
   });
+  return response.data;
 }
 
 async function quickNowPlayingCheck() {
