@@ -1,8 +1,8 @@
 {
   "dependencies": {
+    "axios": "^1.7.7",
     "discord-rpc": "^4.0.1",
-    "pm2": "^5.2.2",
-    "pretty-ms": "^7.0.1",
-    "request-promise": "^4.2.6"
+    "pm2": "^7.0.3",
+    "pretty-ms": "^7.0.1"
   }
 }

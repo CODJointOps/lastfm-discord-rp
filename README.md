@@ -27,6 +27,27 @@ right click "start.bat" and select "Create Shortcut".
 Then press "Windows key + R", in the run box type "shell:startup".
 After that simply copy the shortcut of the bat file to that folder.
 
+#### FOR MACOS
+
+Install deps and start under PM2:
+
+```
+./start_mac.sh
+```
+
+This runs `pm2 start ecosystem.config.js` and `pm2 save`.
+
+To launch automatically at login, use a user LaunchAgent (no sudo).
+Create `~/Library/LaunchAgents/com.lastfm.discordrp.plist` that runs
+`node node_modules/pm2/bin/pm2 resurrect` with `RunAtLoad`, then load it:
+
+```
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.lastfm.discordrp.plist
+```
+
+On boot it resurrects whatever you last `pm2 save`-d. Discord desktop must be
+running and logged in for Rich Presence to appear.
+
 #### FOR LINUX
 
 Go to ~/.config/autostart and create a new file called "lastfm.desktop"
